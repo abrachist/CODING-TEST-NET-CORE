@@ -1,7 +1,15 @@
 # CODING-TEST-NET-CORE
 
+# CONTEXT PROPERTY
 
-#ENDPOINT API
+Id 
+ExpiredDate 
+Title 
+Description 
+CompletePercentage 
+Status 
+
+# ENDPOINT API
 
 - Get All Todo’s
 [METHOD GET: api/TodoItems]
@@ -10,7 +18,9 @@
 [METHOD GET: api/TodoItems/5]
 
 - Get Incoming ToDo (for today/next day/current week)
-[UNFINISHED]
+[METHOD GET: api/TodoItems/Today]
+[METHOD GET: api/TodoItems/Tomorow]
+[METHOD GET: api/TodoItems/ThisWeek]
 
 - Create Todo
 [METHOD POST: api/TodoItems]
@@ -26,5 +36,4 @@
 [METHOD DELETE: api/TodoItems/5]
 
 - Mark Todo as Done
-[METHOD PUT: api/TodoItems/5
-(add query status: "done")]
+[METHOD POST: api/TodoItems/5/Done

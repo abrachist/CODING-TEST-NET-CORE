@@ -27,6 +27,40 @@ namespace ToDoApi.Controllers
             return await _context.TodoItems.ToListAsync();
         }
 
+        // GET: api/TodoItems/Today
+        [HttpGet("Today")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetToday()
+        {
+            
+            return await _context.TodoItems.Where(i => i
+            .ExpiredDate.ToShortDateString().Equals(DateTime.Now.ToShortDateString()))
+            .Where(j => j.Status.Contains("undone"))
+            .ToListAsync();
+        }
+
+        // GET: api/TodoItems/Tomorow
+        [HttpGet("Tomorow")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTomorow()
+        {
+
+            return await _context.TodoItems.Where(i => i
+            .ExpiredDate.ToShortDateString().Equals(DateTime.Now.AddDays(1).ToShortDateString()))
+            .Where(j => j.Status.Contains("undone"))
+            .ToListAsync();
+        }
+
+        // GET: api/TodoItems/ThisWeek
+        [HttpGet("ThisWeek")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetThisWeek()
+        {
+
+            return await _context.TodoItems.Where(i => i
+            .ExpiredDate >= DateTime.Now)
+            .Where(i => i.ExpiredDate <= DateTime.Now.AddDays(7))
+            .Where(j => j.Status.Contains("undone"))
+            .ToListAsync();
+        }
+
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
@@ -45,7 +79,7 @@ namespace ToDoApi.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+        public async Task<ActionResult<TodoItem>> PutTodoItem(long id, TodoItem todoItem)
         {
             if (id != todoItem.Id)
             {
@@ -70,7 +104,7 @@ namespace ToDoApi.Controllers
                 }
             }
 
-            return NoContent();
+            return todoItem;
         }
 
         
@@ -95,6 +129,39 @@ namespace ToDoApi.Controllers
             return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
         }
 
+        // POST: api/TodoItems/5/Done
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPost("{id}/Done")]
+        public async Task<ActionResult<TodoItem>> PostDone(long id)
+        {
+            var todoItem = await _context.TodoItems.FindAsync(id);
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
+
+            todoItem.Status = "done";
+
+            _context.Entry(todoItem).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TodoItemExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return todoItem;
+        }
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(long id)
